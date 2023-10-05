@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <style>
+      pre {
+        background: black;
+        padding: 10px;
+    }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="container">
+    
+                        <section class="docs_main max-w-prose">
+                            
+                            
+                            <div id="main-content">
+    <h1>Contribution Guide</h1>
+<ul>
+<li>
+<a href="#bug-reports">Bug Reports</a>
+</li>
+<li>
+<a href="#support-questions">Support Questions</a>
+</li>
+<li>
+<a href="#core-development-discussion">Core Development Discussion</a>
+</li>
+<li>
+<a href="#which-branch">Which Branch?</a>
+</li>
+<li>
+<a href="#compiled-assets">Compiled Assets</a>
+</li>
+<li>
+<a href="#security-vulnerabilities">Security Vulnerabilities</a>
+</li>
+<li>
+<a href="#coding-style">Coding Style</a>
+<ul>
+<li>
+<a href="#phpdoc">PHPDoc</a>
+</li>
+<li>
+<a href="#styleci">StyleCI</a>
+</li>
+</ul>
+</li>
+<li>
+<a href="#code-of-conduct">Code of Conduct</a>
+</li>
+</ul>
+<p><a name="bug-reports"></a></p>
+<h2>Bug Reports</h2>
+<p>To encourage active collaboration, Laravel strongly encourages pull requests, not just bug reports. Pull requests will only be reviewed when marked as &quot;ready for review&quot; (not in the &quot;draft&quot; state) and all tests for new features are passing. Lingering, non-active pull requests left in the &quot;draft&quot; state will be closed after a few days.</p>
+<p>However, if you file a bug report, your issue should contain a title and a clear description of the issue. You should also include as much relevant information as possible and a code sample that demonstrates the issue. The goal of a bug report is to make it easy for yourself - and others - to replicate the bug and develop a fix.</p>
+<p>Remember, bug reports are created in the hope that others with the same problem will be able to collaborate with you on solving it. Do not expect that the bug report will automatically see any activity or that others will jump to fix it. Creating a bug report serves to help yourself and others start on the path of fixing the problem. If you want to chip in, you can help out by fixing <a href="https://github.com/issues?q=is%3Aopen+is%3Aissue+label%3Abug+user%3Alaravel">any bugs listed in our issue trackers</a>. You must be authenticated with GitHub to view all of Laravel's issues.</p>
+<p>If you notice improper DocBlock, PHPStan, or IDE warnings while using Laravel, do not create a GitHub issue. Instead, please submit a pull request to fix the problem.</p>
+<p>The Laravel source code is managed on GitHub, and there are repositories for each of the Laravel projects:</p>
+<div class="content-list" markdown="1">
+<ul>
+<li>
+<a href="https://github.com/laravel/laravel">Laravel Application</a>
+</li>
+<li>
+<a href="https://github.com/laravel/art">Laravel Art</a>
+</li>
+<li>
+<a href="https://github.com/laravel/docs">Laravel Documentation</a>
+</li>
+<li>
+<a href="https://github.com/laravel/dusk">Laravel Dusk</a>
+</li>
+<li>
+<a href="https://github.com/laravel/cashier">Laravel Cashier Stripe</a>
+</li>
+<li>
+<a href="https://github.com/laravel/cashier-paddle">Laravel Cashier Paddle</a>
+</li>
+<li>
+<a href="https://github.com/laravel/echo">Laravel Echo</a>
+</li>
+<li>
+<a href="https://github.com/laravel/envoy">Laravel Envoy</a>
+</li>
+<li>
+<a href="https://github.com/laravel/folio">Laravel Folio</a>
+</li>
+<li>
+<a href="https://github.com/laravel/framework">Laravel Framework</a>
+</li>
+<li>
+<a href="https://github.com/laravel/homestead">Laravel Homestead</a>
+</li>
+<li>
+<a href="https://github.com/laravel/settler">Laravel Homestead Build Scripts</a>
+</li>
+<li>
+<a href="https://github.com/laravel/horizon">Laravel Horizon</a>
+</li>
+<li>
+<a href="https://github.com/laravel/jetstream">Laravel Jetstream</a>
+</li>
+<li>
+<a href="https://github.com/laravel/passport">Laravel Passport</a>
+</li>
+<li>
+<a href="https://github.com/laravel/pennant">Laravel Pennant</a>
+</li>
+<li>
+<a href="https://github.com/laravel/pint">Laravel Pint</a>
+</li>
+<li>
+<a href="https://github.com/laravel/prompts">Laravel Prompts</a>
+</li>
+<li>
+<a href="https://github.com/laravel/sail">Laravel Sail</a>
+</li>
+<li>
+<a href="https://github.com/laravel/sanctum">Laravel Sanctum</a>
+</li>
+<li>
+<a href="https://github.com/laravel/scout">Laravel Scout</a>
+</li>
+<li>
+<a href="https://github.com/laravel/socialite">Laravel Socialite</a>
+</li>
+<li>
+<a href="https://github.com/laravel/telescope">Laravel Telescope</a>
+</li>
+<li>
+<a href="https://github.com/laravel/laravel.com-next">Laravel Website</a>
+</li>
+</ul>
+</div>
+<p><a name="support-questions"></a></p>
+<h2>Support Questions</h2>
+<p>Laravel's GitHub issue trackers are not intended to provide Laravel help or support. Instead, use one of the following channels:</p>
+<div class="content-list" markdown="1">
+<ul>
+<li>
+<a href="https://github.com/laravel/framework/discussions">GitHub Discussions</a>
+</li>
+<li>
+<a href="https://laracasts.com/discuss">Laracasts Forums</a>
+</li>
+<li>
+<a href="https://laravel.io/forum">Laravel.io Forums</a>
+</li>
+<li>
+<a href="https://stackoverflow.com/questions/tagged/laravel">StackOverflow</a>
+</li>
+<li>
+<a href="https://discord.gg/laravel">Discord</a>
+</li>
+<li>
+<a href="https://larachat.co">Larachat</a>
+</li>
+<li>
+<a href="https://web.libera.chat/?nick=artisan&amp;channels=#laravel">IRC</a>
+</li>
+</ul>
+</div>
+<p><a name="core-development-discussion"></a></p>
+<h2>Core Development Discussion</h2>
+<p>You may propose new features or improvements of existing Laravel behavior in the Laravel framework repository's <a href="https://github.com/laravel/framework/discussions">GitHub discussion board</a>. If you propose a new feature, please be willing to implement at least some of the code that would be needed to complete the feature.</p>
+<p>Informal discussion regarding bugs, new features, and implementation of existing features takes place in the <code>#internals</code> channel of the <a href="https://discord.gg/laravel">Laravel Discord server</a>. Taylor Otwell, the maintainer of Laravel, is typically present in the channel on weekdays from 8am-5pm (UTC-06:00 or America/Chicago), and sporadically present in the channel at other times.</p>
+<p><a name="which-branch"></a></p>
+<h2>Which Branch?</h2>
+<p><strong>All</strong> bug fixes should be sent to the latest version that supports bug fixes (currently <code>10.x</code>). Bug fixes should <strong>never</strong> be sent to the <code>master</code> branch unless they fix features that exist only in the upcoming release.</p>
+<p><strong>Minor</strong> features that are <strong>fully backward compatible</strong> with the current release may be sent to the latest stable branch (currently <code>10.x</code>).</p>
+<p><strong>Major</strong> new features or features with breaking changes should always be sent to the <code>master</code> branch, which contains the upcoming release.</p>
+<p><a name="compiled-assets"></a></p>
+<h2>Compiled Assets</h2>
+<p>If you are submitting a change that will affect a compiled file, such as most of the files in <code>resources/css</code> or <code>resources/js</code> of the <code>laravel/laravel</code> repository, do not commit the compiled files. Due to their large size, they cannot realistically be reviewed by a maintainer. This could be exploited as a way to inject malicious code into Laravel. In order to defensively prevent this, all compiled files will be generated and committed by Laravel maintainers.</p>
+<p><a name="security-vulnerabilities"></a></p>
+<h2>Security Vulnerabilities</h2>
+<p>If you discover a security vulnerability within Laravel, please send an email to Taylor Otwell at <a href="/cdn-cgi/l/email-protection#3440554d585b4674585546554251581a575b59"><a href="/cdn-cgi/l/email-protection#0c786d7560637e4c606d7e6d7a6960226f6361"><span class="__cf_email__" data-cfemail="b5c1d4ccd9dac7f5d9d4c7d4c3d0d99bd6dad8">[email&#160;protected]</span></a></a>. All security vulnerabilities will be promptly addressed.</p>
+<p><a name="coding-style"></a></p>
+<h2>Coding Style</h2>
+<p>Laravel follows the <a href="https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md">PSR-2</a> coding standard and the <a href="https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md">PSR-4</a> autoloading standard.</p>
+<p><a name="phpdoc"></a></p>
+<h3>PHPDoc</h3>
+<p>Below is an example of a valid Laravel documentation block. Note that the <code>@param</code> attribute is followed by two spaces, the argument type, two more spaces, and finally the variable name:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #697098;">/**</span></div><div class='line'><span style="color: #697098;"> * Register a binding with the container.</span></div><div class='line'><span style="color: #697098;"> *</span></div><div class='line'><span style="color: #697098;"> * </span><span style="color: #C792EA;">@param</span><span style="color: #697098;">  </span><span style="color: #C792EA;">string</span><span style="color: #697098;">|</span><span style="color: #C792EA;">array</span><span style="color: #697098;">  $abstract</span></div><div class='line'><span style="color: #697098;"> * </span><span style="color: #C792EA;">@param</span><span style="color: #697098;">  </span><span style="color: #697098;">\</span><span style="color: #FFCB8B;">Closure</span><span style="color: #697098;">|</span><span style="color: #C792EA;">string</span><span style="color: #697098;">|</span><span style="color: #C792EA;">null</span><span style="color: #697098;">  $concrete</span></div><div class='line'><span style="color: #697098;"> * </span><span style="color: #C792EA;">@param</span><span style="color: #697098;">  </span><span style="color: #C792EA;">bool</span><span style="color: #697098;">  $shared</span></div><div class='line'><span style="color: #697098;"> * </span><span style="color: #C792EA;">@return</span><span style="color: #697098;"> </span><span style="color: #C792EA;">void</span></div><div class='line'><span style="color: #697098;"> *</span></div><div class='line'><span style="color: #697098;"> * </span><span style="color: #C792EA;">@throws</span><span style="color: #697098;"> </span><span style="color: #FFCB6B;">\</span><span style="color: #FFCB6B;">Exception</span></div><div class='line'><span style="color: #697098;"> </span><span style="color: #697098;">*/</span></div><div class='line'><span style="color: #C792EA;">public</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">bind</span><span style="color: #D9F5DD;">(</span><span style="color: #BEC5D4;">$abstract</span><span style="color: #BFC7D5;">, </span><span style="color: #BEC5D4;">$concrete</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">null</span><span style="color: #BFC7D5;">, </span><span style="color: #BEC5D4;">$shared</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">false</span><span style="color: #D9F5DD;">)</span></div><div class='line'><span style="color: #BFC7D5;">{</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #697098;">//</span><span style="color: #697098;"> ...</span></div><div class='line'><span style="color: #BFC7D5;">}</span></div></code></pre>
+<p>When the <code>@param</code> or <code>@return</code> attributes are redundant due to the use of native types, they can be removed:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #697098;">/**</span></div><div class='line'><span style="color: #697098;"> * Execute the job.</span></div><div class='line'><span style="color: #697098;"> </span><span style="color: #697098;">*/</span></div><div class='line'><span style="color: #C792EA;">public</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">handle</span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">AudioProcessor</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$processor</span><span style="color: #D9F5DD;">)</span><span style="color: #89DDFF;">:</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">void</span></div><div class='line'><span style="color: #BFC7D5;">{</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #697098;">//</span></div><div class='line'><span style="color: #BFC7D5;">}</span></div></code></pre>
+<p>However, when the native type is generic, please specify the generic type through the use of the <code>@param</code> or <code>@return</code> attributes:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #697098;">/**</span></div><div class='line'><span style="color: #697098;"> * Get the attachments for the message.</span></div><div class='line'><span style="color: #697098;"> *</span></div><div class='line'><span style="color: #697098;"> * </span><span style="color: #C792EA;">@return</span><span style="color: #697098;"> </span><span style="color: #C792EA;">array</span><span style="color: #697098;">&lt;</span><span style="color: #C792EA;">int</span><span style="color: #697098;">, \Illuminate\Mail\Mailables\Attachment&gt;</span></div><div class='line'><span style="color: #697098;"> </span><span style="color: #697098;">*/</span></div><div class='line'><span style="color: #C792EA;">public</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">attachments</span><span style="color: #D9F5DD;">()</span><span style="color: #89DDFF;">:</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">array</span></div><div class='line'><span style="color: #BFC7D5;">{</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #C792EA;">return</span><span style="color: #BFC7D5;"> [</span></div><div class='line'><span style="color: #BFC7D5;">        </span><span style="color: #FFCB8B;">Attachment</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">fromStorage</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">/path/to/file</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">),</span></div><div class='line'><span style="color: #BFC7D5;">    ];</span></div><div class='line'><span style="color: #BFC7D5;">}</span></div></code></pre>
+<p><a name="styleci"></a></p>
+<h3>StyleCI</h3>
+<p>Don't worry if your code styling isn't perfect! <a href="https://styleci.io/">StyleCI</a> will automatically merge any style fixes into the Laravel repository after pull requests are merged. This allows us to focus on the content of the contribution and not the code style.</p>
+<p><a name="code-of-conduct"></a></p>
+<h2>Code of Conduct</h2>
+<p>The Laravel code of conduct is derived from the Ruby code of conduct. Any violations of the code of conduct may be reported to Taylor Otwell (<a href="/cdn-cgi/l/email-protection#3347524a5f5c41735f52415245565f1d505c5e"><span class="__cf_email__" data-cfemail="0a7e6b736665784a666b786b7c6f6624696567">[email&#160;protected]</span></a>):</p>
+<div class="content-list" markdown="1">
+<ul>
+<li>Participants will be tolerant of opposing views.</li>
+<li>Participants must ensure that their language and actions are free of personal attacks and disparaging personal remarks.</li>
+<li>When interpreting the words and actions of others, participants should always assume good intentions.</li>
+<li>Behavior that can be reasonably considered harassment will not be tolerated.</li>
+</ul>
+</div>
+
+                                <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CKYILK3E&placement=laravelcom" id="_carbonads_js"></script>
+</div>
+                        
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  </body>
+</html>

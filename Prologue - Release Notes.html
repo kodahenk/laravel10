@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <style>
+      pre {
+        background: black;
+        padding: 10px;
+    }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="container">
+    
+                        <section class="docs_main max-w-prose">
+                            
+                            
+                            <div id="main-content">
+    <h1>Release Notes</h1>
+<ul>
+<li>
+<a href="#versioning-scheme">Versioning Scheme</a>
+</li>
+<li>
+<a href="#support-policy">Support Policy</a>
+</li>
+<li>
+<a href="#laravel-10">Laravel 10</a>
+</li>
+</ul>
+<p><a name="versioning-scheme"></a></p>
+<h2>Versioning Scheme</h2>
+<p>Laravel and its other first-party packages follow <a href="https://semver.org">Semantic Versioning</a>. Major framework releases are released every year (~Q1), while minor and patch releases may be released as often as every week. Minor and patch releases should <strong>never</strong> contain breaking changes.</p>
+<p>When referencing the Laravel framework or its components from your application or package, you should always use a version constraint such as <code>^10.0</code>, since major releases of Laravel do include breaking changes. However, we strive to always ensure you may update to a new major release in one day or less.</p>
+<p><a name="named-arguments"></a></p>
+<h4>Named Arguments</h4>
+<p><a href="https://www.php.net/manual/en/functions.arguments.php#functions.named-arguments">Named arguments</a> are not covered by Laravel's backwards compatibility guidelines. We may choose to rename function arguments when necessary in order to improve the Laravel codebase. Therefore, using named arguments when calling Laravel methods should be done cautiously and with the understanding that the parameter names may change in the future.</p>
+<p><a name="support-policy"></a></p>
+<h2>Support Policy</h2>
+<p>For all Laravel releases, bug fixes are provided for 18 months and security fixes are provided for 2 years. For all additional libraries, including Lumen, only the latest major release receives bug fixes. In addition, please review the database versions <a href="/docs/10.x/database#introduction">supported by Laravel</a>.</p>
+<div class="overflow-auto">
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>PHP (*)</th>
+<th>Release</th>
+<th>Bug Fixes Until</th>
+<th>Security Fixes Until</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8</td>
+<td>7.3 - 8.1</td>
+<td>September 8th, 2020</td>
+<td>July 26th, 2022</td>
+<td>January 24th, 2023</td>
+</tr>
+<tr>
+<td>9</td>
+<td>8.0 - 8.2</td>
+<td>February 8th, 2022</td>
+<td>August 8th, 2023</td>
+<td>February 6th, 2024</td>
+</tr>
+<tr>
+<td>10</td>
+<td>8.1 - 8.2</td>
+<td>February 14th, 2023</td>
+<td>August 6th, 2024</td>
+<td>February 4th, 2025</td>
+</tr>
+<tr>
+<td>11</td>
+<td>8.2</td>
+<td>Q1 2024</td>
+<td>August 5th, 2025</td>
+<td>February 3rd, 2026</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="version-colors">
+    <div class="end-of-life">
+        <div class="color-box"></div>
+        <div>End of life</div>
+    </div>
+    <div class="security-fixes">
+        <div class="color-box"></div>
+        <div>Security fixes only</div>
+    </div>
+</div>
+<p>(*) Supported PHP versions</p>
+<p><a name="laravel-10"></a></p>
+<h2>Laravel 10</h2>
+<p>As you may know, Laravel transitioned to yearly releases with the release of Laravel 8. Previously, major versions were released every 6 months. This transition is intended to ease the maintenance burden on the community and challenge our development team to ship amazing, powerful new features without introducing breaking changes. Therefore, we have shipped a variety of robust features to Laravel 9 without breaking backwards compatibility.</p>
+<p>Therefore, this commitment to ship great new features during the current release will likely lead to future &quot;major&quot; releases being primarily used for &quot;maintenance&quot; tasks such as upgrading upstream dependencies, which can be seen in these release notes.</p>
+<p>Laravel 10 continues the improvements made in Laravel 9.x by introducing argument and return types to all application skeleton methods, as well as all stub files used to generate classes throughout the framework. In addition, a new, developer-friendly abstraction layer has been introduced for starting and interacting with external processes. Further, Laravel Pennant has been introduced to provide a wonderful approach to managing your application's &quot;feature flags&quot;.</p>
+<p><a name="php-8"></a></p>
+<h3>PHP 8.1</h3>
+<p>Laravel 10.x requires a minimum PHP version of 8.1.</p>
+<p><a name="types"></a></p>
+<h3>Types</h3>
+<p><em>Application skeleton and stub type-hints were contributed by <a href="https://github.com/nunomaduro">Nuno Maduro</a></em>.</p>
+<p>On its initial release, Laravel utilized all of the type-hinting features available in PHP at the time. However, many new features have been added to PHP in the subsequent years, including additional primitive type-hints, return types, and union types.</p>
+<p>Laravel 10.x thoroughly updates the application skeleton and all stubs utilized by the framework to introduce argument and return types to all method signatures. In addition, extraneous &quot;doc block&quot; type-hint information has been deleted.</p>
+<p>This change is entirely backwards compatible with existing applications. Therefore, existing applications that do not have these type-hints will continue to function normally.</p>
+<p><a name="laravel-pennant"></a></p>
+<h3>Laravel Pennant</h3>
+<p><em>Laravel Pennant was developed by <a href="https://github.com/timacdonald">Tim MacDonald</a></em>.</p>
+<p>A new first-party package, Laravel Pennant, has been released. Laravel Pennant offers a light-weight, streamlined approach to managing your application's feature flags. Out of the box, Pennant includes an in-memory <code>array</code> driver and a <code>database</code> driver for persistent feature storage.</p>
+<p>Features can be easily defined via the <code>Feature::define</code> method:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Laravel\Pennant\</span><span style="color: #FFCB8B;">Feature</span><span style="color: #BFC7D5;">;</span></div><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Support\</span><span style="color: #FFCB8B;">Lottery</span><span style="color: #BFC7D5;">;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #FFCB8B;">Feature</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">define</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">new-onboarding-flow</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">()</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #C792EA;">return</span><span style="color: #BFC7D5;"> </span><span style="color: #FFCB8B;">Lottery</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">odds</span><span style="color: #BFC7D5;">(</span><span style="color: #F78C6C;">1</span><span style="color: #BFC7D5;">, </span><span style="color: #F78C6C;">10</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p>Once a feature has been defined, you may easily determine if the current user has access to the given feature:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #C792EA;">if</span><span style="color: #BFC7D5;"> (</span><span style="color: #FFCB8B;">Feature</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">active</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">new-onboarding-flow</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">)) {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #697098;">//</span><span style="color: #697098;"> ...</span></div><div class='line'><span style="color: #BFC7D5;">}</span></div></code></pre>
+<p>Of course, for convenience, Blade directives are also available:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="blade" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #82AAFF;">@feature</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">new-onboarding-flow</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">)</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #89DDFF;">&lt;</span><span style="color: #FF5572;">div</span><span style="color: #89DDFF;">&gt;</span></div><div class='line'><span style="color: #BFC7D5;">        </span><span style="color: #697098;">&lt;!--</span><span style="color: #697098;"> ... </span><span style="color: #697098;">--&gt;</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #89DDFF;">&lt;/</span><span style="color: #FF5572;">div</span><span style="color: #89DDFF;">&gt;</span></div><div class='line'><span style="color: #82AAFF;">@endfeature</span></div></code></pre>
+<p>Pennant offers a variety of more advanced features and APIs. For more information, please consult the <a href="/docs/10.x/pennant">comprehensive Pennant documentation</a>.</p>
+<p><a name="process"></a></p>
+<h3>Process Interaction</h3>
+<p><em>The process abstraction layer was contributed by <a href="https://github.com/nunomaduro">Nuno Maduro</a> and <a href="https://github.com/taylorotwell">Taylor Otwell</a></em>.</p>
+<p>Laravel 10.x introduces a beautiful abstraction layer for starting and interacting with external processes via a new <code>Process</code> facade:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Support\Facades\</span><span style="color: #FFCB8B;">Process</span><span style="color: #BFC7D5;">;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #BEC5D4;">$result</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #FFCB8B;">Process</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">run</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">ls -la</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #C792EA;">return</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$result</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">output</span><span style="color: #BFC7D5;">();</span></div></code></pre>
+<p>Processes may even be started in pools, allowing for the convenient execution and management of concurrent processes:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Process\</span><span style="color: #FFCB8B;">Pool</span><span style="color: #BFC7D5;">;</span></div><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Support\Facades\</span><span style="color: #FFCB8B;">Process</span><span style="color: #BFC7D5;">;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #BFC7D5;">[</span><span style="color: #BEC5D4;">$first</span><span style="color: #BFC7D5;">, </span><span style="color: #BEC5D4;">$second</span><span style="color: #BFC7D5;">, </span><span style="color: #BEC5D4;">$third</span><span style="color: #BFC7D5;">] </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #FFCB8B;">Process</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">concurrently</span><span style="color: #BFC7D5;">(</span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB6B;">Pool</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$pool</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$pool</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">command</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">cat first.txt</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$pool</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">command</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">cat second.txt</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$pool</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">command</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">cat third.txt</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #C792EA;">return</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$first</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">output</span><span style="color: #BFC7D5;">();</span></div></code></pre>
+<p>In addition, processes may be faked for convenient testing:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #FFCB8B;">Process</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">fake</span><span style="color: #BFC7D5;">();</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #697098;">//</span><span style="color: #697098;"> ...</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #FFCB8B;">Process</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">assertRan</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">ls -la</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p>For more information on interacting with processes, please consult the <a href="/docs/10.x/processes">comprehensive process documentation</a>.</p>
+<p><a name="test-profiling"></a></p>
+<h3>Test Profiling</h3>
+<p><em>Test profiling was contributed by <a href="https://github.com/nunomaduro">Nuno Maduro</a></em>.</p>
+<p>The Artisan <code>test</code> command has received a new <code>--profile</code> option that allows you to easily identify the slowest tests in your application:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="shell" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">test</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">--profile</span></div></code></pre>
+<p>For convenience, the slowest tests will be displayed directly within the CLI output:</p>
+<p align="center">
+    <img width="100%" src="https://user-images.githubusercontent.com/5457236/217328439-d8d983ec-d0fc-4cde-93d9-ae5bccf5df14.png"/>
+</p>
+<p><a name="pest-scaffolding"></a></p>
+<h3>Pest Scaffolding</h3>
+<p>New Laravel projects may now be created with Pest test scaffolding by default. To opt-in to this feature, provide the <code>--pest</code> flag when creating a new application via the Laravel installer:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="shell" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BFC7D5;">laravel </span><span style="color: #BFC7D5;">new</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">example-application</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">--pest</span></div></code></pre>
+<p><a name="generator-cli-prompts"></a></p>
+<h3>Generator CLI Prompts</h3>
+<p><em>Generator CLI prompts were contributed by <a href="https://github.com/jessarcher">Jess Archer</a></em>.</p>
+<p>To improve the framework's developer experience, all of Laravel's built-in <code>make</code> commands no longer require any input. If the commands are invoked without input, you will be prompted for the required arguments:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="shell" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">make:controller</span></div></code></pre>
+<p><a name="horizon-telescope-facelift"></a></p>
+<h3>Horizon / Telescope Facelift</h3>
+<p><a href="/docs/10.x/horizon">Horizon</a> and <a href="/docs/10.x/telescope">Telescope</a> have been updated with a fresh, modern look including improved typography, spacing, and design:</p>
+<img src="https://laravel.com/img/docs/horizon-example.png">
+
+                                <script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CKYILK3E&placement=laravelcom" id="_carbonads_js"></script>
+</div>
+                        
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  </body>
+</html>

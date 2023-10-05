@@ -1,0 +1,976 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <style>
+      pre {
+        background: black;
+        padding: 10px;
+    }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="container">
+    
+                        <section class="docs_main max-w-prose">
+                            
+                            
+                            <div id="main-content">
+    <h1>Database: Migrations</h1>
+<ul>
+<li>
+<a href="#introduction">Introduction</a>
+</li>
+<li>
+<a href="#generating-migrations">Generating Migrations</a>
+<ul>
+<li>
+<a href="#squashing-migrations">Squashing Migrations</a>
+</li>
+</ul>
+</li>
+<li>
+<a href="#migration-structure">Migration Structure</a>
+</li>
+<li>
+<a href="#running-migrations">Running Migrations</a>
+<ul>
+<li>
+<a href="#rolling-back-migrations">Rolling Back Migrations</a>
+</li>
+</ul>
+</li>
+<li>
+<a href="#tables">Tables</a>
+<ul>
+<li>
+<a href="#creating-tables">Creating Tables</a>
+</li>
+<li>
+<a href="#updating-tables">Updating Tables</a>
+</li>
+<li>
+<a href="#renaming-and-dropping-tables">Renaming / Dropping Tables</a>
+</li>
+</ul>
+</li>
+<li>
+<a href="#columns">Columns</a>
+<ul>
+<li>
+<a href="#creating-columns">Creating Columns</a>
+</li>
+<li>
+<a href="#available-column-types">Available Column Types</a>
+</li>
+<li>
+<a href="#column-modifiers">Column Modifiers</a>
+</li>
+<li>
+<a href="#modifying-columns">Modifying Columns</a>
+</li>
+<li>
+<a href="#renaming-columns">Renaming Columns</a>
+</li>
+<li>
+<a href="#dropping-columns">Dropping Columns</a>
+</li>
+</ul>
+</li>
+<li>
+<a href="#indexes">Indexes</a>
+<ul>
+<li>
+<a href="#creating-indexes">Creating Indexes</a>
+</li>
+<li>
+<a href="#renaming-indexes">Renaming Indexes</a>
+</li>
+<li>
+<a href="#dropping-indexes">Dropping Indexes</a>
+</li>
+<li>
+<a href="#foreign-key-constraints">Foreign Key Constraints</a>
+</li>
+</ul>
+</li>
+<li>
+<a href="#events">Events</a>
+</li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2>Introduction</h2>
+<p>Migrations are like version control for your database, allowing your team to define and share the application's database schema definition. If you have ever had to tell a teammate to manually add a column to their local database schema after pulling in your changes from source control, you've faced the problem that database migrations solve.</p>
+<p>The Laravel <code>Schema</code> <a href="/docs/10.x/facades">facade</a> provides database agnostic support for creating and manipulating tables across all of Laravel's supported database systems. Typically, migrations will use this facade to create and modify database tables and columns.</p>
+<p><a name="generating-migrations"></a></p>
+<h2>Generating Migrations</h2>
+<p>You may use the <code>make:migration</code> <a href="/docs/10.x/artisan">Artisan command</a> to generate a database migration. The new migration will be placed in your <code>database/migrations</code> directory. Each migration filename contains a timestamp that allows Laravel to determine the order of the migrations:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="shell" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">make:migration</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">create_flights_table</span></div></code></pre>
+<p>Laravel will use the name of the migration to attempt to guess the name of the table and whether or not the migration will be creating a new table. If Laravel is able to determine the table name from the migration name, Laravel will pre-fill the generated migration file with the specified table. Otherwise, you may simply specify the table in the migration file manually.</p>
+<p>If you would like to specify a custom path for the generated migration, you may use the <code>--path</code> option when executing the <code>make:migration</code> command. The given path should be relative to your application's base path.</p>
+<blockquote>
+<p><strong>Note</strong><br />
+Migration stubs may be customized using <a href="/docs/10.x/artisan#stub-customization">stub publishing</a>.</p>
+</blockquote>
+<p><a name="squashing-migrations"></a></p>
+<h3>Squashing Migrations</h3>
+<p>As you build your application, you may accumulate more and more migrations over time. This can lead to your <code>database/migrations</code> directory becoming bloated with potentially hundreds of migrations. If you would like, you may &quot;squash&quot; your migrations into a single SQL file. To get started, execute the <code>schema:dump</code> command:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="shell" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">schema:dump</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #697098;">#</span><span style="color: #697098;"> Dump the current database schema and prune all existing migrations...</span></div><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">schema:dump</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">--prune</span></div></code></pre>
+<p>When you execute this command, Laravel will write a &quot;schema&quot; file to your application's <code>database/schema</code> directory. The schema file's name will correspond to the database connection. Now, when you attempt to migrate your database and no other migrations have been executed, Laravel will first execute the SQL statements in the schema file of the database connection you are using. After executing the schema file's SQL statements, Laravel will execute any remaining migrations that were not part of the schema dump.</p>
+<p>If your application's tests use a different database connection than the one you typically use during local development, you should ensure you have dumped a schema file using that database connection so that your tests are able to build your database. You may wish to do this after dumping the database connection you typically use during local development:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="shell" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">schema:dump</span></div><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">schema:dump</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">--database=testing</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">--prune</span></div></code></pre>
+<p>You should commit your database schema file to source control so that other new developers on your team may quickly create your application's initial database structure.</p>
+<blockquote>
+<p><strong>Warning</strong><br />
+Migration squashing is only available for the MySQL, PostgreSQL, and SQLite databases and utilizes the database's command-line client. Schema dumps may not be restored to in-memory SQLite databases.</p>
+</blockquote>
+<p><a name="migration-structure"></a></p>
+<h2>Migration Structure</h2>
+<p>A migration class contains two methods: <code>up</code> and <code>down</code>. The <code>up</code> method is used to add new tables, columns, or indexes to your database, while the <code>down</code> method should reverse the operations performed by the <code>up</code> method.</p>
+<p>Within both of these methods, you may use the Laravel schema builder to expressively create and modify tables. To learn about all of the methods available on the <code>Schema</code> builder, <a href="#creating-tables">check out its documentation</a>. For example, the following migration creates a <code>flights</code> table:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #D3423E;">&lt;?php</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Database\Migrations\</span><span style="color: #FFCB8B;">Migration</span><span style="color: #BFC7D5;">;</span></div><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Database\Schema\</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;">;</span></div><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Support\Facades\</span><span style="color: #FFCB8B;">Schema</span><span style="color: #BFC7D5;">;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #C792EA;">return</span><span style="color: #BFC7D5;"> </span><span style="color: #89DDFF;">new</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">class</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">extends</span><span style="color: #BFC7D5;"> </span><span style="color: #A9C77D;">Migration</span></div><div class='line'><span style="color: #BFC7D5;">{</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #697098;">/**</span></div><div class='line'><span style="color: #697098;">     * Run the migrations.</span></div><div class='line'><span style="color: #697098;">     </span><span style="color: #697098;">*/</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #C792EA;">public</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">up</span><span style="color: #D9F5DD;">()</span><span style="color: #89DDFF;">:</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">void</span></div><div class='line'><span style="color: #BFC7D5;">    {</span></div><div class='line'><span style="color: #BFC7D5;">        </span><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">create</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">flights</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">            </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">id</span><span style="color: #BFC7D5;">();</span></div><div class='line'><span style="color: #BFC7D5;">            </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">string</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">name</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">            </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">string</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">airline</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">            </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">timestamps</span><span style="color: #BFC7D5;">();</span></div><div class='line'><span style="color: #BFC7D5;">        });</span></div><div class='line'><span style="color: #BFC7D5;">    }</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #697098;">/**</span></div><div class='line'><span style="color: #697098;">     * Reverse the migrations.</span></div><div class='line'><span style="color: #697098;">     </span><span style="color: #697098;">*/</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #C792EA;">public</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">down</span><span style="color: #D9F5DD;">()</span><span style="color: #89DDFF;">:</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">void</span></div><div class='line'><span style="color: #BFC7D5;">    {</span></div><div class='line'><span style="color: #BFC7D5;">        </span><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">drop</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">flights</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">    }</span></div><div class='line'><span style="color: #BFC7D5;">};</span></div></code></pre>
+<p><a name="setting-the-migration-connection"></a></p>
+<h4>Setting The Migration Connection</h4>
+<p>If your migration will be interacting with a database connection other than your application's default database connection, you should set the <code>$connection</code> property of your migration:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #697098;">/**</span></div><div class='line'><span style="color: #697098;"> * The database connection that should be used by the migration.</span></div><div class='line'><span style="color: #697098;"> *</span></div><div class='line'><span style="color: #697098;"> * </span><span style="color: #C792EA;">@var</span><span style="color: #697098;"> </span><span style="color: #C792EA;">string</span></div><div class='line'><span style="color: #697098;"> </span><span style="color: #697098;">*/</span></div><div class='line'><span style="color: #C792EA;">protected</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$connection</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">pgsql</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #697098;">/**</span></div><div class='line'><span style="color: #697098;"> * Run the migrations.</span></div><div class='line'><span style="color: #697098;"> </span><span style="color: #697098;">*/</span></div><div class='line'><span style="color: #C792EA;">public</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">up</span><span style="color: #D9F5DD;">()</span><span style="color: #89DDFF;">:</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">void</span></div><div class='line'><span style="color: #BFC7D5;">{</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #697098;">//</span><span style="color: #697098;"> ...</span></div><div class='line'><span style="color: #BFC7D5;">}</span></div></code></pre>
+<p><a name="running-migrations"></a></p>
+<h2>Running Migrations</h2>
+<p>To run all of your outstanding migrations, execute the <code>migrate</code> Artisan command:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="shell" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">migrate</span></div></code></pre>
+<p>If you would like to see which migrations have run thus far, you may use the <code>migrate:status</code> Artisan command:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="shell" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">migrate:status</span></div></code></pre>
+<p>If you would like to see the SQL statements that will be executed by the migrations without actually running them, you may provide the <code>--pretend</code> flag to the <code>migrate</code> command:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="shell" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">migrate</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">--pretend</span></div></code></pre>
+<h4>Isolating Migration Execution</h4>
+<p>If you are deploying your application across multiple servers and running migrations as part of your deployment process, you likely do not want two servers attempting to migrate the database at the same time. To avoid this, you may use the <code>isolated</code> option when invoking the <code>migrate</code> command.</p>
+<p>When the <code>isolated</code> option is provided, Laravel will acquire an atomic lock using your application's cache driver before attempting to run your migrations. All other attempts to run the <code>migrate</code> command while that lock is held will not execute; however, the command will still exit with a successful exit status code:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="shell" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">migrate</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">--isolated</span></div></code></pre>
+<blockquote>
+<p><strong>Warning</strong>
+To utilize this feature, your application must be using the <code>memcached</code>, <code>redis</code>, <code>dynamodb</code>, <code>database</code>, <code>file</code>, or <code>array</code> cache driver as your application's default cache driver. In addition, all servers must be communicating with the same central cache server.</p>
+</blockquote>
+<p><a name="forcing-migrations-to-run-in-production"></a></p>
+<h4>Forcing Migrations To Run In Production</h4>
+<p>Some migration operations are destructive, which means they may cause you to lose data. In order to protect you from running these commands against your production database, you will be prompted for confirmation before the commands are executed. To force the commands to run without a prompt, use the <code>--force</code> flag:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="shell" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">migrate</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">--force</span></div></code></pre>
+<p><a name="rolling-back-migrations"></a></p>
+<h3>Rolling Back Migrations</h3>
+<p>To roll back the latest migration operation, you may use the <code>rollback</code> Artisan command. This command rolls back the last &quot;batch&quot; of migrations, which may include multiple migration files:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="shell" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">migrate:rollback</span></div></code></pre>
+<p>You may roll back a limited number of migrations by providing the <code>step</code> option to the <code>rollback</code> command. For example, the following command will roll back the last five migrations:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="shell" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">migrate:rollback</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">--step=5</span></div></code></pre>
+<p>You may roll back a specific &quot;batch&quot; of migrations by providing the <code>batch</code> option to the <code>rollback</code> command, where the <code>batch</code> option corresponds to a batch value within your application's <code>migrations</code> database table. For example, the following command will roll back all migrations in batch three:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="shell" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">migrate:rollback</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">--batch=3</span></div></code></pre>
+<p>If you would like to see the SQL statements that will be executed by the migrations without actually running them, you may provide the <code>--pretend</code> flag to the <code>migrate:rollback</code> command:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="shell" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">migrate:rollback</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">--pretend</span></div></code></pre>
+<p>The <code>migrate:reset</code> command will roll back all of your application's migrations:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="shell" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">migrate:reset</span></div></code></pre>
+<p><a name="roll-back-migrate-using-a-single-command"></a></p>
+<h4>Roll Back &amp; Migrate Using A Single Command</h4>
+<p>The <code>migrate:refresh</code> command will roll back all of your migrations and then execute the <code>migrate</code> command. This command effectively re-creates your entire database:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="shell" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">migrate:refresh</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #697098;">#</span><span style="color: #697098;"> Refresh the database and run all database seeds...</span></div><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">migrate:refresh</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">--seed</span></div></code></pre>
+<p>You may roll back and re-migrate a limited number of migrations by providing the <code>step</code> option to the <code>refresh</code> command. For example, the following command will roll back and re-migrate the last five migrations:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="shell" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">migrate:refresh</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">--step=5</span></div></code></pre>
+<p><a name="drop-all-tables-migrate"></a></p>
+<h4>Drop All Tables &amp; Migrate</h4>
+<p>The <code>migrate:fresh</code> command will drop all tables from the database and then execute the <code>migrate</code> command:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="shell" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">migrate:fresh</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #BFC7D5;">php </span><span style="color: #BFC7D5;">artisan</span><span style="color: #BFC7D5;"> </span><span style="color: #BFC7D5;">migrate:fresh</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">--seed</span></div></code></pre>
+<blockquote>
+<p><strong>Warning</strong><br />
+The <code>migrate:fresh</code> command will drop all database tables regardless of their prefix. This command should be used with caution when developing on a database that is shared with other applications.</p>
+</blockquote>
+<p><a name="tables"></a></p>
+<h2>Tables</h2>
+<p><a name="creating-tables"></a></p>
+<h3>Creating Tables</h3>
+<p>To create a new database table, use the <code>create</code> method on the <code>Schema</code> facade. The <code>create</code> method accepts two arguments: the first is the name of the table, while the second is a closure which receives a <code>Blueprint</code> object that may be used to define the new table:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Database\Schema\</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;">;</span></div><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Support\Facades\</span><span style="color: #FFCB8B;">Schema</span><span style="color: #BFC7D5;">;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">create</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">users</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">id</span><span style="color: #BFC7D5;">();</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">string</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">name</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">string</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">email</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">timestamps</span><span style="color: #BFC7D5;">();</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p>When creating the table, you may use any of the schema builder's <a href="#creating-columns">column methods</a> to define the table's columns.</p>
+<p><a name="checking-for-table-column-existence"></a></p>
+<h4>Checking For Table / Column Existence</h4>
+<p>You may check for the existence of a table or column using the <code>hasTable</code> and <code>hasColumn</code> methods:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #C792EA;">if</span><span style="color: #BFC7D5;"> (</span><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">hasTable</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">users</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">)) {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #697098;">//</span><span style="color: #697098;"> The &quot;users&quot; table exists...</span></div><div class='line'><span style="color: #BFC7D5;">}</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #C792EA;">if</span><span style="color: #BFC7D5;"> (</span><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">hasColumn</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">users</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">email</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">)) {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #697098;">//</span><span style="color: #697098;"> The &quot;users&quot; table exists and has an &quot;email&quot; column...</span></div><div class='line'><span style="color: #BFC7D5;">}</span></div></code></pre>
+<p><a name="database-connection-table-options"></a></p>
+<h4>Database Connection &amp; Table Options</h4>
+<p>If you want to perform a schema operation on a database connection that is not your application's default connection, use the <code>connection</code> method:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">connection</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">sqlite</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">)</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">create</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">users</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">id</span><span style="color: #BFC7D5;">();</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p>In addition, a few other properties and methods may be used to define other aspects of the table's creation. The <code>engine</code> property may be used to specify the table's storage engine when using MySQL:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">create</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">users</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;engine</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">InnoDB</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #697098;">//</span><span style="color: #697098;"> ...</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p>The <code>charset</code> and <code>collation</code> properties may be used to specify the character set and collation for the created table when using MySQL:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">create</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">users</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;charset</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">utf8mb4</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">;</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;collation</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">utf8mb4_unicode_ci</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #697098;">//</span><span style="color: #697098;"> ...</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p>The <code>temporary</code> method may be used to indicate that the table should be &quot;temporary&quot;. Temporary tables are only visible to the current connection's database session and are dropped automatically when the connection is closed:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">create</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">calculations</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">temporary</span><span style="color: #BFC7D5;">();</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #697098;">//</span><span style="color: #697098;"> ...</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p>If you would like to add a &quot;comment&quot; to a database table, you may invoke the <code>comment</code> method on the table instance. Table comments are currently only supported by MySQL and Postgres:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">create</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">calculations</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">comment</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">Business calculations</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #697098;">//</span><span style="color: #697098;"> ...</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p><a name="updating-tables"></a></p>
+<h3>Updating Tables</h3>
+<p>The <code>table</code> method on the <code>Schema</code> facade may be used to update existing tables. Like the <code>create</code> method, the <code>table</code> method accepts two arguments: the name of the table and a closure that receives a <code>Blueprint</code> instance you may use to add columns or indexes to the table:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Database\Schema\</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;">;</span></div><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Support\Facades\</span><span style="color: #FFCB8B;">Schema</span><span style="color: #BFC7D5;">;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">table</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">users</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">integer</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">votes</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p><a name="renaming-and-dropping-tables"></a></p>
+<h3>Renaming / Dropping Tables</h3>
+<p>To rename an existing database table, use the <code>rename</code> method:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Support\Facades\</span><span style="color: #FFCB8B;">Schema</span><span style="color: #BFC7D5;">;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">rename</span><span style="color: #BFC7D5;">(</span><span style="color: #BEC5D4;">$from</span><span style="color: #BFC7D5;">, </span><span style="color: #BEC5D4;">$to</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p>To drop an existing table, you may use the <code>drop</code> or <code>dropIfExists</code> methods:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">drop</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">users</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">dropIfExists</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">users</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="renaming-tables-with-foreign-keys"></a></p>
+<h4>Renaming Tables With Foreign Keys</h4>
+<p>Before renaming a table, you should verify that any foreign key constraints on the table have an explicit name in your migration files instead of letting Laravel assign a convention based name. Otherwise, the foreign key constraint name will refer to the old table name.</p>
+<p><a name="columns"></a></p>
+<h2>Columns</h2>
+<p><a name="creating-columns"></a></p>
+<h3>Creating Columns</h3>
+<p>The <code>table</code> method on the <code>Schema</code> facade may be used to update existing tables. Like the <code>create</code> method, the <code>table</code> method accepts two arguments: the name of the table and a closure that receives an <code>Illuminate\Database\Schema\Blueprint</code> instance you may use to add columns to the table:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Database\Schema\</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;">;</span></div><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Support\Facades\</span><span style="color: #FFCB8B;">Schema</span><span style="color: #BFC7D5;">;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">table</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">users</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">integer</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">votes</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p><a name="available-column-types"></a></p>
+<h3>Available Column Types</h3>
+<p>The schema builder blueprint offers a variety of methods that correspond to the different types of columns you can add to your database tables. Each of the available methods are listed in the table below:</p>
+<style>
+    .collection-method-list > p {
+        columns: 10.8em 3; -moz-columns: 10.8em 3; -webkit-columns: 10.8em 3;
+    }
+
+    .collection-method-list a {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .collection-method code {
+        font-size: 14px;
+    }
+
+    .collection-method:not(.first-collection-method) {
+        margin-top: 50px;
+    }
+</style>
+<div class="collection-method-list" markdown="1">
+<p><a href="#column-method-bigIncrements">bigIncrements</a>
+<a href="#column-method-bigInteger">bigInteger</a>
+<a href="#column-method-binary">binary</a>
+<a href="#column-method-boolean">boolean</a>
+<a href="#column-method-char">char</a>
+<a href="#column-method-dateTimeTz">dateTimeTz</a>
+<a href="#column-method-dateTime">dateTime</a>
+<a href="#column-method-date">date</a>
+<a href="#column-method-decimal">decimal</a>
+<a href="#column-method-double">double</a>
+<a href="#column-method-enum">enum</a>
+<a href="#column-method-float">float</a>
+<a href="#column-method-foreignId">foreignId</a>
+<a href="#column-method-foreignIdFor">foreignIdFor</a>
+<a href="#column-method-foreignUlid">foreignUlid</a>
+<a href="#column-method-foreignUuid">foreignUuid</a>
+<a href="#column-method-geometryCollection">geometryCollection</a>
+<a href="#column-method-geometry">geometry</a>
+<a href="#column-method-id">id</a>
+<a href="#column-method-increments">increments</a>
+<a href="#column-method-integer">integer</a>
+<a href="#column-method-ipAddress">ipAddress</a>
+<a href="#column-method-json">json</a>
+<a href="#column-method-jsonb">jsonb</a>
+<a href="#column-method-lineString">lineString</a>
+<a href="#column-method-longText">longText</a>
+<a href="#column-method-macAddress">macAddress</a>
+<a href="#column-method-mediumIncrements">mediumIncrements</a>
+<a href="#column-method-mediumInteger">mediumInteger</a>
+<a href="#column-method-mediumText">mediumText</a>
+<a href="#column-method-morphs">morphs</a>
+<a href="#column-method-multiLineString">multiLineString</a>
+<a href="#column-method-multiPoint">multiPoint</a>
+<a href="#column-method-multiPolygon">multiPolygon</a>
+<a href="#column-method-nullableMorphs">nullableMorphs</a>
+<a href="#column-method-nullableTimestamps">nullableTimestamps</a>
+<a href="#column-method-nullableUlidMorphs">nullableUlidMorphs</a>
+<a href="#column-method-nullableUuidMorphs">nullableUuidMorphs</a>
+<a href="#column-method-point">point</a>
+<a href="#column-method-polygon">polygon</a>
+<a href="#column-method-rememberToken">rememberToken</a>
+<a href="#column-method-set">set</a>
+<a href="#column-method-smallIncrements">smallIncrements</a>
+<a href="#column-method-smallInteger">smallInteger</a>
+<a href="#column-method-softDeletesTz">softDeletesTz</a>
+<a href="#column-method-softDeletes">softDeletes</a>
+<a href="#column-method-string">string</a>
+<a href="#column-method-text">text</a>
+<a href="#column-method-timeTz">timeTz</a>
+<a href="#column-method-time">time</a>
+<a href="#column-method-timestampTz">timestampTz</a>
+<a href="#column-method-timestamp">timestamp</a>
+<a href="#column-method-timestampsTz">timestampsTz</a>
+<a href="#column-method-timestamps">timestamps</a>
+<a href="#column-method-tinyIncrements">tinyIncrements</a>
+<a href="#column-method-tinyInteger">tinyInteger</a>
+<a href="#column-method-tinyText">tinyText</a>
+<a href="#column-method-unsignedBigInteger">unsignedBigInteger</a>
+<a href="#column-method-unsignedDecimal">unsignedDecimal</a>
+<a href="#column-method-unsignedInteger">unsignedInteger</a>
+<a href="#column-method-unsignedMediumInteger">unsignedMediumInteger</a>
+<a href="#column-method-unsignedSmallInteger">unsignedSmallInteger</a>
+<a href="#column-method-unsignedTinyInteger">unsignedTinyInteger</a>
+<a href="#column-method-ulidMorphs">ulidMorphs</a>
+<a href="#column-method-uuidMorphs">uuidMorphs</a>
+<a href="#column-method-ulid">ulid</a>
+<a href="#column-method-uuid">uuid</a>
+<a href="#column-method-year">year</a></p>
+</div>
+<p><a name="column-method-bigIncrements"></a></p>
+<h4 class="collection-method first-collection-method"><code>bigIncrements()</code></h4>
+<p>The <code>bigIncrements</code> method creates an auto-incrementing <code>UNSIGNED BIGINT</code> (primary key) equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">bigIncrements</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">id</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-bigInteger"></a></p>
+<h4 class="collection-method"><code>bigInteger()</code></h4>
+<p>The <code>bigInteger</code> method creates a <code>BIGINT</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">bigInteger</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">votes</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-binary"></a></p>
+<h4 class="collection-method"><code>binary()</code></h4>
+<p>The <code>binary</code> method creates a <code>BLOB</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">binary</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">photo</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-boolean"></a></p>
+<h4 class="collection-method"><code>boolean()</code></h4>
+<p>The <code>boolean</code> method creates a <code>BOOLEAN</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">boolean</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">confirmed</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-char"></a></p>
+<h4 class="collection-method"><code>char()</code></h4>
+<p>The <code>char</code> method creates a <code>CHAR</code> equivalent column with of a given length:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">char</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">name</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #F78C6C;">100</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-dateTimeTz"></a></p>
+<h4 class="collection-method"><code>dateTimeTz()</code></h4>
+<p>The <code>dateTimeTz</code> method creates a <code>DATETIME</code> (with timezone) equivalent column with an optional precision (total digits):</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">dateTimeTz</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">created_at</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #BEC5D4;">$precision</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #F78C6C;">0</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-dateTime"></a></p>
+<h4 class="collection-method"><code>dateTime()</code></h4>
+<p>The <code>dateTime</code> method creates a <code>DATETIME</code> equivalent column with an optional precision (total digits):</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">dateTime</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">created_at</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #BEC5D4;">$precision</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #F78C6C;">0</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-date"></a></p>
+<h4 class="collection-method"><code>date()</code></h4>
+<p>The <code>date</code> method creates a <code>DATE</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">date</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">created_at</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-decimal"></a></p>
+<h4 class="collection-method"><code>decimal()</code></h4>
+<p>The <code>decimal</code> method creates a <code>DECIMAL</code> equivalent column with the given precision (total digits) and scale (decimal digits):</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">decimal</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">amount</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #BEC5D4;">$precision</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #F78C6C;">8</span><span style="color: #BFC7D5;">, </span><span style="color: #BEC5D4;">$scale</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #F78C6C;">2</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-double"></a></p>
+<h4 class="collection-method"><code>double()</code></h4>
+<p>The <code>double</code> method creates a <code>DOUBLE</code> equivalent column with the given precision (total digits) and scale (decimal digits):</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">double</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">amount</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #F78C6C;">8</span><span style="color: #BFC7D5;">, </span><span style="color: #F78C6C;">2</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-enum"></a></p>
+<h4 class="collection-method"><code>enum()</code></h4>
+<p>The <code>enum</code> method creates a <code>ENUM</code> equivalent column with the given valid values:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">enum</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">difficulty</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, [</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">easy</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">hard</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">]);</span></div></code></pre>
+<p><a name="column-method-float"></a></p>
+<h4 class="collection-method"><code>float()</code></h4>
+<p>The <code>float</code> method creates a <code>FLOAT</code> equivalent column with the given precision (total digits) and scale (decimal digits):</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">float</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">amount</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #F78C6C;">8</span><span style="color: #BFC7D5;">, </span><span style="color: #F78C6C;">2</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-foreignId"></a></p>
+<h4 class="collection-method"><code>foreignId()</code></h4>
+<p>The <code>foreignId</code> method creates an <code>UNSIGNED BIGINT</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">foreignId</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">user_id</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-foreignIdFor"></a></p>
+<h4 class="collection-method"><code>foreignIdFor()</code></h4>
+<p>The <code>foreignIdFor</code> method adds a <code>{column}_id</code> equivalent column for a given model class. The column type will be <code>UNSIGNED BIGINT</code>, <code>CHAR(36)</code>, or <code>CHAR(26)</code> depending on the model key type:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">foreignIdFor</span><span style="color: #BFC7D5;">(</span><span style="color: #FFCB8B;">User</span><span style="color: #89DDFF;">::</span><span style="color: #C792EA;">class</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-foreignUlid"></a></p>
+<h4 class="collection-method"><code>foreignUlid()</code></h4>
+<p>The <code>foreignUlid</code> method creates a <code>ULID</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">foreignUlid</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">user_id</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-foreignUuid"></a></p>
+<h4 class="collection-method"><code>foreignUuid()</code></h4>
+<p>The <code>foreignUuid</code> method creates a <code>UUID</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">foreignUuid</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">user_id</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-geometryCollection"></a></p>
+<h4 class="collection-method"><code>geometryCollection()</code></h4>
+<p>The <code>geometryCollection</code> method creates a <code>GEOMETRYCOLLECTION</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">geometryCollection</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">positions</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-geometry"></a></p>
+<h4 class="collection-method"><code>geometry()</code></h4>
+<p>The <code>geometry</code> method creates a <code>GEOMETRY</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">geometry</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">positions</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-id"></a></p>
+<h4 class="collection-method"><code>id()</code></h4>
+<p>The <code>id</code> method is an alias of the <code>bigIncrements</code> method. By default, the method will create an <code>id</code> column; however, you may pass a column name if you would like to assign a different name to the column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">id</span><span style="color: #BFC7D5;">();</span></div></code></pre>
+<p><a name="column-method-increments"></a></p>
+<h4 class="collection-method"><code>increments()</code></h4>
+<p>The <code>increments</code> method creates an auto-incrementing <code>UNSIGNED INTEGER</code> equivalent column as a primary key:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">increments</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">id</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-integer"></a></p>
+<h4 class="collection-method"><code>integer()</code></h4>
+<p>The <code>integer</code> method creates an <code>INTEGER</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">integer</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">votes</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-ipAddress"></a></p>
+<h4 class="collection-method"><code>ipAddress()</code></h4>
+<p>The <code>ipAddress</code> method creates a <code>VARCHAR</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">ipAddress</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">visitor</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p>When using Postgres, an <code>INET</code> column will be created.</p>
+<p><a name="column-method-json"></a></p>
+<h4 class="collection-method"><code>json()</code></h4>
+<p>The <code>json</code> method creates a <code>JSON</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">json</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">options</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-jsonb"></a></p>
+<h4 class="collection-method"><code>jsonb()</code></h4>
+<p>The <code>jsonb</code> method creates a <code>JSONB</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">jsonb</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">options</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-lineString"></a></p>
+<h4 class="collection-method"><code>lineString()</code></h4>
+<p>The <code>lineString</code> method creates a <code>LINESTRING</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">lineString</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">positions</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-longText"></a></p>
+<h4 class="collection-method"><code>longText()</code></h4>
+<p>The <code>longText</code> method creates a <code>LONGTEXT</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">longText</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">description</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-macAddress"></a></p>
+<h4 class="collection-method"><code>macAddress()</code></h4>
+<p>The <code>macAddress</code> method creates a column that is intended to hold a MAC address. Some database systems, such as PostgreSQL, have a dedicated column type for this type of data. Other database systems will use a string equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">macAddress</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">device</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-mediumIncrements"></a></p>
+<h4 class="collection-method"><code>mediumIncrements()</code></h4>
+<p>The <code>mediumIncrements</code> method creates an auto-incrementing <code>UNSIGNED MEDIUMINT</code> equivalent column as a primary key:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">mediumIncrements</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">id</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-mediumInteger"></a></p>
+<h4 class="collection-method"><code>mediumInteger()</code></h4>
+<p>The <code>mediumInteger</code> method creates a <code>MEDIUMINT</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">mediumInteger</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">votes</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-mediumText"></a></p>
+<h4 class="collection-method"><code>mediumText()</code></h4>
+<p>The <code>mediumText</code> method creates a <code>MEDIUMTEXT</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">mediumText</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">description</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-morphs"></a></p>
+<h4 class="collection-method"><code>morphs()</code></h4>
+<p>The <code>morphs</code> method is a convenience method that adds a <code>{column}_id</code> equivalent column and a <code>{column}_type</code> <code>VARCHAR</code> equivalent column. The column type for the <code>{column}_id</code> will be <code>UNSIGNED BIGINT</code>, <code>CHAR(36)</code>, or <code>CHAR(26)</code> depending on the model key type.</p>
+<p>This method is intended to be used when defining the columns necessary for a polymorphic <a href="/docs/10.x/eloquent-relationships">Eloquent relationship</a>. In the following example, <code>taggable_id</code> and <code>taggable_type</code> columns would be created:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">morphs</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">taggable</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-multiLineString"></a></p>
+<h4 class="collection-method"><code>multiLineString()</code></h4>
+<p>The <code>multiLineString</code> method creates a <code>MULTILINESTRING</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">multiLineString</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">positions</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-multiPoint"></a></p>
+<h4 class="collection-method"><code>multiPoint()</code></h4>
+<p>The <code>multiPoint</code> method creates a <code>MULTIPOINT</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">multiPoint</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">positions</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-multiPolygon"></a></p>
+<h4 class="collection-method"><code>multiPolygon()</code></h4>
+<p>The <code>multiPolygon</code> method creates a <code>MULTIPOLYGON</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">multiPolygon</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">positions</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-nullableTimestamps"></a></p>
+<h4 class="collection-method"><code>nullableTimestamps()</code></h4>
+<p>The <code>nullableTimestamps</code> method is an alias of the <a href="#column-method-timestamps">timestamps</a> method:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">nullableTimestamps</span><span style="color: #BFC7D5;">(</span><span style="color: #F78C6C;">0</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-nullableMorphs"></a></p>
+<h4 class="collection-method"><code>nullableMorphs()</code></h4>
+<p>The method is similar to the <a href="#column-method-morphs">morphs</a> method; however, the columns that are created will be &quot;nullable&quot;:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">nullableMorphs</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">taggable</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-nullableUlidMorphs"></a></p>
+<h4 class="collection-method"><code>nullableUlidMorphs()</code></h4>
+<p>The method is similar to the <a href="#column-method-ulidMorphs">ulidMorphs</a> method; however, the columns that are created will be &quot;nullable&quot;:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">nullableUlidMorphs</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">taggable</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-nullableUuidMorphs"></a></p>
+<h4 class="collection-method"><code>nullableUuidMorphs()</code></h4>
+<p>The method is similar to the <a href="#column-method-uuidMorphs">uuidMorphs</a> method; however, the columns that are created will be &quot;nullable&quot;:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">nullableUuidMorphs</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">taggable</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-point"></a></p>
+<h4 class="collection-method"><code>point()</code></h4>
+<p>The <code>point</code> method creates a <code>POINT</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">point</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">position</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-polygon"></a></p>
+<h4 class="collection-method"><code>polygon()</code></h4>
+<p>The <code>polygon</code> method creates a <code>POLYGON</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">polygon</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">position</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-rememberToken"></a></p>
+<h4 class="collection-method"><code>rememberToken()</code></h4>
+<p>The <code>rememberToken</code> method creates a nullable, <code>VARCHAR(100)</code> equivalent column that is intended to store the current &quot;remember me&quot; <a href="/docs/10.x/authentication#remembering-users">authentication token</a>:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">rememberToken</span><span style="color: #BFC7D5;">();</span></div></code></pre>
+<p><a name="column-method-set"></a></p>
+<h4 class="collection-method"><code>set()</code></h4>
+<p>The <code>set</code> method creates a <code>SET</code> equivalent column with the given list of valid values:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">set</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">flavors</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, [</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">strawberry</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">vanilla</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">]);</span></div></code></pre>
+<p><a name="column-method-smallIncrements"></a></p>
+<h4 class="collection-method"><code>smallIncrements()</code></h4>
+<p>The <code>smallIncrements</code> method creates an auto-incrementing <code>UNSIGNED SMALLINT</code> equivalent column as a primary key:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">smallIncrements</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">id</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-smallInteger"></a></p>
+<h4 class="collection-method"><code>smallInteger()</code></h4>
+<p>The <code>smallInteger</code> method creates a <code>SMALLINT</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">smallInteger</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">votes</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-softDeletesTz"></a></p>
+<h4 class="collection-method"><code>softDeletesTz()</code></h4>
+<p>The <code>softDeletesTz</code> method adds a nullable <code>deleted_at</code> <code>TIMESTAMP</code> (with timezone) equivalent column with an optional precision (total digits). This column is intended to store the <code>deleted_at</code> timestamp needed for Eloquent's &quot;soft delete&quot; functionality:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">softDeletesTz</span><span style="color: #BFC7D5;">(</span><span style="color: #BEC5D4;">$column</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">deleted_at</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #BEC5D4;">$precision</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #F78C6C;">0</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-softDeletes"></a></p>
+<h4 class="collection-method"><code>softDeletes()</code></h4>
+<p>The <code>softDeletes</code> method adds a nullable <code>deleted_at</code> <code>TIMESTAMP</code> equivalent column with an optional precision (total digits). This column is intended to store the <code>deleted_at</code> timestamp needed for Eloquent's &quot;soft delete&quot; functionality:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">softDeletes</span><span style="color: #BFC7D5;">(</span><span style="color: #BEC5D4;">$column</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">deleted_at</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #BEC5D4;">$precision</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #F78C6C;">0</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-string"></a></p>
+<h4 class="collection-method"><code>string()</code></h4>
+<p>The <code>string</code> method creates a <code>VARCHAR</code> equivalent column of the given length:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">string</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">name</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #F78C6C;">100</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-text"></a></p>
+<h4 class="collection-method"><code>text()</code></h4>
+<p>The <code>text</code> method creates a <code>TEXT</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">text</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">description</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-timeTz"></a></p>
+<h4 class="collection-method"><code>timeTz()</code></h4>
+<p>The <code>timeTz</code> method creates a <code>TIME</code> (with timezone) equivalent column with an optional precision (total digits):</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">timeTz</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">sunrise</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #BEC5D4;">$precision</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #F78C6C;">0</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-time"></a></p>
+<h4 class="collection-method"><code>time()</code></h4>
+<p>The <code>time</code> method creates a <code>TIME</code> equivalent column with an optional precision (total digits):</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">time</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">sunrise</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #BEC5D4;">$precision</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #F78C6C;">0</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-timestampTz"></a></p>
+<h4 class="collection-method"><code>timestampTz()</code></h4>
+<p>The <code>timestampTz</code> method creates a <code>TIMESTAMP</code> (with timezone) equivalent column with an optional precision (total digits):</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">timestampTz</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">added_at</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #BEC5D4;">$precision</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #F78C6C;">0</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-timestamp"></a></p>
+<h4 class="collection-method"><code>timestamp()</code></h4>
+<p>The <code>timestamp</code> method creates a <code>TIMESTAMP</code> equivalent column with an optional precision (total digits):</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">timestamp</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">added_at</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #BEC5D4;">$precision</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #F78C6C;">0</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-timestampsTz"></a></p>
+<h4 class="collection-method"><code>timestampsTz()</code></h4>
+<p>The <code>timestampsTz</code> method creates <code>created_at</code> and <code>updated_at</code> <code>TIMESTAMP</code> (with timezone) equivalent columns with an optional precision (total digits):</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">timestampsTz</span><span style="color: #BFC7D5;">(</span><span style="color: #BEC5D4;">$precision</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #F78C6C;">0</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-timestamps"></a></p>
+<h4 class="collection-method"><code>timestamps()</code></h4>
+<p>The <code>timestamps</code> method creates <code>created_at</code> and <code>updated_at</code> <code>TIMESTAMP</code> equivalent columns with an optional precision (total digits):</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">timestamps</span><span style="color: #BFC7D5;">(</span><span style="color: #BEC5D4;">$precision</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #F78C6C;">0</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-tinyIncrements"></a></p>
+<h4 class="collection-method"><code>tinyIncrements()</code></h4>
+<p>The <code>tinyIncrements</code> method creates an auto-incrementing <code>UNSIGNED TINYINT</code> equivalent column as a primary key:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">tinyIncrements</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">id</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-tinyInteger"></a></p>
+<h4 class="collection-method"><code>tinyInteger()</code></h4>
+<p>The <code>tinyInteger</code> method creates a <code>TINYINT</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">tinyInteger</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">votes</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-tinyText"></a></p>
+<h4 class="collection-method"><code>tinyText()</code></h4>
+<p>The <code>tinyText</code> method creates a <code>TINYTEXT</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">tinyText</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">notes</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-unsignedBigInteger"></a></p>
+<h4 class="collection-method"><code>unsignedBigInteger()</code></h4>
+<p>The <code>unsignedBigInteger</code> method creates an <code>UNSIGNED BIGINT</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">unsignedBigInteger</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">votes</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-unsignedDecimal"></a></p>
+<h4 class="collection-method"><code>unsignedDecimal()</code></h4>
+<p>The <code>unsignedDecimal</code> method creates an <code>UNSIGNED DECIMAL</code> equivalent column with an optional precision (total digits) and scale (decimal digits):</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">unsignedDecimal</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">amount</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #BEC5D4;">$precision</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #F78C6C;">8</span><span style="color: #BFC7D5;">, </span><span style="color: #BEC5D4;">$scale</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #F78C6C;">2</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-unsignedInteger"></a></p>
+<h4 class="collection-method"><code>unsignedInteger()</code></h4>
+<p>The <code>unsignedInteger</code> method creates an <code>UNSIGNED INTEGER</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">unsignedInteger</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">votes</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-unsignedMediumInteger"></a></p>
+<h4 class="collection-method"><code>unsignedMediumInteger()</code></h4>
+<p>The <code>unsignedMediumInteger</code> method creates an <code>UNSIGNED MEDIUMINT</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">unsignedMediumInteger</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">votes</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-unsignedSmallInteger"></a></p>
+<h4 class="collection-method"><code>unsignedSmallInteger()</code></h4>
+<p>The <code>unsignedSmallInteger</code> method creates an <code>UNSIGNED SMALLINT</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">unsignedSmallInteger</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">votes</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-unsignedTinyInteger"></a></p>
+<h4 class="collection-method"><code>unsignedTinyInteger()</code></h4>
+<p>The <code>unsignedTinyInteger</code> method creates an <code>UNSIGNED TINYINT</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">unsignedTinyInteger</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">votes</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-ulidMorphs"></a></p>
+<h4 class="collection-method"><code>ulidMorphs()</code></h4>
+<p>The <code>ulidMorphs</code> method is a convenience method that adds a <code>{column}_id</code> <code>CHAR(26)</code> equivalent column and a <code>{column}_type</code> <code>VARCHAR</code> equivalent column.</p>
+<p>This method is intended to be used when defining the columns necessary for a polymorphic <a href="/docs/10.x/eloquent-relationships">Eloquent relationship</a> that use ULID identifiers. In the following example, <code>taggable_id</code> and <code>taggable_type</code> columns would be created:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">ulidMorphs</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">taggable</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-uuidMorphs"></a></p>
+<h4 class="collection-method"><code>uuidMorphs()</code></h4>
+<p>The <code>uuidMorphs</code> method is a convenience method that adds a <code>{column}_id</code> <code>CHAR(36)</code> equivalent column and a <code>{column}_type</code> <code>VARCHAR</code> equivalent column.</p>
+<p>This method is intended to be used when defining the columns necessary for a polymorphic <a href="/docs/10.x/eloquent-relationships">Eloquent relationship</a> that use UUID identifiers. In the following example, <code>taggable_id</code> and <code>taggable_type</code> columns would be created:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">uuidMorphs</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">taggable</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-ulid"></a></p>
+<h4 class="collection-method"><code>ulid()</code></h4>
+<p>The <code>ulid</code> method creates a <code>ULID</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">ulid</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">id</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-uuid"></a></p>
+<h4 class="collection-method"><code>uuid()</code></h4>
+<p>The <code>uuid</code> method creates a <code>UUID</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">uuid</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">id</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-method-year"></a></p>
+<h4 class="collection-method"><code>year()</code></h4>
+<p>The <code>year</code> method creates a <code>YEAR</code> equivalent column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">year</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">birth_year</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="column-modifiers"></a></p>
+<h3>Column Modifiers</h3>
+<p>In addition to the column types listed above, there are several column &quot;modifiers&quot; you may use when adding a column to a database table. For example, to make the column &quot;nullable&quot;, you may use the <code>nullable</code> method:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Database\Schema\</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;">;</span></div><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Support\Facades\</span><span style="color: #FFCB8B;">Schema</span><span style="color: #BFC7D5;">;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">table</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">users</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">string</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">email</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">)</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">nullable</span><span style="color: #BFC7D5;">();</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p>The following table contains all of the available column modifiers. This list does not include <a href="#creating-indexes">index modifiers</a>:</p>
+<table>
+<thead>
+<tr>
+<th>Modifier</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-&gt;after('column')</code></td>
+<td>Place the column &quot;after&quot; another column (MySQL).</td>
+</tr>
+<tr>
+<td><code>-&gt;autoIncrement()</code></td>
+<td>Set INTEGER columns as auto-incrementing (primary key).</td>
+</tr>
+<tr>
+<td><code>-&gt;charset('utf8mb4')</code></td>
+<td>Specify a character set for the column (MySQL).</td>
+</tr>
+<tr>
+<td><code>-&gt;collation('utf8mb4_unicode_ci')</code></td>
+<td>Specify a collation for the column (MySQL/PostgreSQL/SQL Server).</td>
+</tr>
+<tr>
+<td><code>-&gt;comment('my comment')</code></td>
+<td>Add a comment to a column (MySQL/PostgreSQL).</td>
+</tr>
+<tr>
+<td><code>-&gt;default($value)</code></td>
+<td>Specify a &quot;default&quot; value for the column.</td>
+</tr>
+<tr>
+<td><code>-&gt;first()</code></td>
+<td>Place the column &quot;first&quot; in the table (MySQL).</td>
+</tr>
+<tr>
+<td><code>-&gt;from($integer)</code></td>
+<td>Set the starting value of an auto-incrementing field (MySQL / PostgreSQL).</td>
+</tr>
+<tr>
+<td><code>-&gt;invisible()</code></td>
+<td>Make the column &quot;invisible&quot; to <code>SELECT *</code> queries (MySQL).</td>
+</tr>
+<tr>
+<td><code>-&gt;nullable($value = true)</code></td>
+<td>Allow NULL values to be inserted into the column.</td>
+</tr>
+<tr>
+<td><code>-&gt;storedAs($expression)</code></td>
+<td>Create a stored generated column (MySQL / PostgreSQL).</td>
+</tr>
+<tr>
+<td><code>-&gt;unsigned()</code></td>
+<td>Set INTEGER columns as UNSIGNED (MySQL).</td>
+</tr>
+<tr>
+<td><code>-&gt;useCurrent()</code></td>
+<td>Set TIMESTAMP columns to use CURRENT_TIMESTAMP as default value.</td>
+</tr>
+<tr>
+<td><code>-&gt;useCurrentOnUpdate()</code></td>
+<td>Set TIMESTAMP columns to use CURRENT_TIMESTAMP when a record is updated (MySQL).</td>
+</tr>
+<tr>
+<td><code>-&gt;virtualAs($expression)</code></td>
+<td>Create a virtual generated column (MySQL).</td>
+</tr>
+<tr>
+<td><code>-&gt;generatedAs($expression)</code></td>
+<td>Create an identity column with specified sequence options (PostgreSQL).</td>
+</tr>
+<tr>
+<td><code>-&gt;always()</code></td>
+<td>Defines the precedence of sequence values over input for an identity column (PostgreSQL).</td>
+</tr>
+<tr>
+<td><code>-&gt;isGeometry()</code></td>
+<td>Set spatial column type to <code>geometry</code> - the default type is <code>geography</code> (PostgreSQL).</td>
+</tr>
+</tbody>
+</table>
+<p><a name="default-expressions"></a></p>
+<h4>Default Expressions</h4>
+<p>The <code>default</code> modifier accepts a value or an <code>Illuminate\Database\Query\Expression</code> instance. Using an <code>Expression</code> instance will prevent Laravel from wrapping the value in quotes and allow you to use database specific functions. One situation where this is particularly useful is when you need to assign default values to JSON columns:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #D3423E;">&lt;?php</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Support\Facades\</span><span style="color: #FFCB8B;">Schema</span><span style="color: #BFC7D5;">;</span></div><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Database\Schema\</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;">;</span></div><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Database\Query\</span><span style="color: #FFCB8B;">Expression</span><span style="color: #BFC7D5;">;</span></div><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Database\Migrations\</span><span style="color: #FFCB8B;">Migration</span><span style="color: #BFC7D5;">;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #C792EA;">return</span><span style="color: #BFC7D5;"> </span><span style="color: #89DDFF;">new</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">class</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">extends</span><span style="color: #BFC7D5;"> </span><span style="color: #A9C77D;">Migration</span></div><div class='line'><span style="color: #BFC7D5;">{</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #697098;">/**</span></div><div class='line'><span style="color: #697098;">     * Run the migrations.</span></div><div class='line'><span style="color: #697098;">     </span><span style="color: #697098;">*/</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #C792EA;">public</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">up</span><span style="color: #D9F5DD;">()</span><span style="color: #89DDFF;">:</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">void</span></div><div class='line'><span style="color: #BFC7D5;">    {</span></div><div class='line'><span style="color: #BFC7D5;">        </span><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">create</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">flights</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">            </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">id</span><span style="color: #BFC7D5;">();</span></div><div class='line'><span style="color: #BFC7D5;">            </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">json</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">movies</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">)</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">default</span><span style="color: #BFC7D5;">(</span><span style="color: #89DDFF;">new</span><span style="color: #BFC7D5;"> </span><span style="color: #FFCB8B;">Expression</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">(JSON_ARRAY())</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">));</span></div><div class='line'><span style="color: #BFC7D5;">            </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">timestamps</span><span style="color: #BFC7D5;">();</span></div><div class='line'><span style="color: #BFC7D5;">        });</span></div><div class='line'><span style="color: #BFC7D5;">    }</span></div><div class='line'><span style="color: #BFC7D5;">};</span></div></code></pre>
+<blockquote>
+<p><strong>Warning</strong><br />
+Support for default expressions depends on your database driver, database version, and the field type. Please refer to your database's documentation.</p>
+</blockquote>
+<p><a name="column-order"></a></p>
+<h4>Column Order</h4>
+<p>When using the MySQL database, the <code>after</code> method may be used to add columns after an existing column in the schema:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">after</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">password</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">string</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">address_line1</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">string</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">address_line2</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">string</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">city</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p><a name="modifying-columns"></a></p>
+<h3>Modifying Columns</h3>
+<p>The <code>change</code> method allows you to modify the type and attributes of existing columns. For example, you may wish to increase the size of a <code>string</code> column. To see the <code>change</code> method in action, let's increase the size of the <code>name</code> column from 25 to 50. To accomplish this, we simply define the new state of the column and then call the <code>change</code> method:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">table</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">users</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">string</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">name</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #F78C6C;">50</span><span style="color: #BFC7D5;">)</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">change</span><span style="color: #BFC7D5;">();</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p>When modifying a column, you must explicitly include all of the modifiers you want to keep on the column definition - any missing attribute will be dropped. For example, to retain the <code>unsigned</code>, <code>default</code>, and <code>comment</code> attributes, you must call each modifier explicitly when changing the column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">table</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">users</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">integer</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">votes</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">)</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">unsigned</span><span style="color: #BFC7D5;">()</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">default</span><span style="color: #BFC7D5;">(</span><span style="color: #F78C6C;">1</span><span style="color: #BFC7D5;">)</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">comment</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">my comment</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">)</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">change</span><span style="color: #BFC7D5;">();</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p><a name="modifying-columns-on-sqlite"></a></p>
+<h4>Modifying Columns On SQLite</h4>
+<p>If your application is utilizing an SQLite database, you must install the <code>doctrine/dbal</code> package using the Composer package manager before modifying a column. The Doctrine DBAL library is used to determine the current state of the column and to create the SQL queries needed to make the requested changes to your column:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #82AAFF;">composer</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">require</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">doctrine</span><span style="color: #89DDFF;">/</span><span style="color: #82AAFF;">dbal</span></div></code></pre>
+<p>If you plan to modify columns created using the <code>timestamp</code> method, you must also add the following configuration to your application's <code>config/database.php</code> configuration file:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Database\DBAL\</span><span style="color: #FFCB8B;">TimestampType</span><span style="color: #BFC7D5;">;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">dbal</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;"> </span><span style="color: #89DDFF;">=&gt;</span><span style="color: #BFC7D5;"> [</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">types</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;"> </span><span style="color: #89DDFF;">=&gt;</span><span style="color: #BFC7D5;"> [</span></div><div class='line'><span style="color: #BFC7D5;">        </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">timestamp</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;"> </span><span style="color: #89DDFF;">=&gt;</span><span style="color: #BFC7D5;"> </span><span style="color: #FFCB8B;">TimestampType</span><span style="color: #89DDFF;">::</span><span style="color: #C792EA;">class</span><span style="color: #BFC7D5;">,</span></div><div class='line'><span style="color: #BFC7D5;">    ],</span></div><div class='line'><span style="color: #BFC7D5;">],</span></div></code></pre>
+<blockquote>
+<p><strong>Warning</strong><br />
+When using the <code>doctrine/dbal</code> package, the following column types can be modified: <code>bigInteger</code>, <code>binary</code>, <code>boolean</code>, <code>char</code>, <code>date</code>, <code>dateTime</code>, <code>dateTimeTz</code>, <code>decimal</code>, <code>double</code>, <code>integer</code>, <code>json</code>, <code>longText</code>, <code>mediumText</code>, <code>smallInteger</code>, <code>string</code>, <code>text</code>, <code>time</code>, <code>tinyText</code>, <code>unsignedBigInteger</code>, <code>unsignedInteger</code>, <code>unsignedSmallInteger</code>, <code>ulid</code>, and <code>uuid</code>.</p>
+</blockquote>
+<p><a name="renaming-columns"></a></p>
+<h3>Renaming Columns</h3>
+<p>To rename a column, you may use the <code>renameColumn</code> method provided by the schema builder:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">table</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">users</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">renameColumn</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">from</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">to</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p><a name="renaming-columns-on-legacy-databases"></a></p>
+<h4>Renaming Columns On Legacy Databases</h4>
+<p>If you are running a database installation older than one of the following releases, you should ensure that you have installed the <code>doctrine/dbal</code> library via the Composer package manager before renaming a column:</p>
+<div class="content-list" markdown="1">
+<ul>
+<li>MySQL &lt; <code>8.0.3</code>
+</li>
+<li>MariaDB &lt; <code>10.5.2</code>
+</li>
+<li>SQLite &lt; <code>3.25.0</code>
+</li>
+</ul>
+</div>
+<p><a name="dropping-columns"></a></p>
+<h3>Dropping Columns</h3>
+<p>To drop a column, you may use the <code>dropColumn</code> method on the schema builder:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">table</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">users</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">dropColumn</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">votes</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p>You may drop multiple columns from a table by passing an array of column names to the <code>dropColumn</code> method:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">table</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">users</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">dropColumn</span><span style="color: #BFC7D5;">([</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">votes</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">avatar</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">location</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">]);</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p><a name="dropping-columns-on-legacy-databases"></a></p>
+<h4>Dropping Columns On Legacy Databases</h4>
+<p>If you are running a version of SQLite prior to <code>3.35.0</code>, you must install the <code>doctrine/dbal</code> package via the Composer package manager before the <code>dropColumn</code> method may be used. Dropping or modifying multiple columns within a single migration while using this package is not supported.</p>
+<p><a name="available-command-aliases"></a></p>
+<h4>Available Command Aliases</h4>
+<p>Laravel provides several convenient methods related to dropping common types of columns. Each of these methods is described in the table below:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$table-&gt;dropMorphs('morphable');</code></td>
+<td>Drop the <code>morphable_id</code> and <code>morphable_type</code> columns.</td>
+</tr>
+<tr>
+<td><code>$table-&gt;dropRememberToken();</code></td>
+<td>Drop the <code>remember_token</code> column.</td>
+</tr>
+<tr>
+<td><code>$table-&gt;dropSoftDeletes();</code></td>
+<td>Drop the <code>deleted_at</code> column.</td>
+</tr>
+<tr>
+<td><code>$table-&gt;dropSoftDeletesTz();</code></td>
+<td>Alias of <code>dropSoftDeletes()</code> method.</td>
+</tr>
+<tr>
+<td><code>$table-&gt;dropTimestamps();</code></td>
+<td>Drop the <code>created_at</code> and <code>updated_at</code> columns.</td>
+</tr>
+<tr>
+<td><code>$table-&gt;dropTimestampsTz();</code></td>
+<td>Alias of <code>dropTimestamps()</code> method.</td>
+</tr>
+</tbody>
+</table>
+<p><a name="indexes"></a></p>
+<h2>Indexes</h2>
+<p><a name="creating-indexes"></a></p>
+<h3>Creating Indexes</h3>
+<p>The Laravel schema builder supports several types of indexes. The following example creates a new <code>email</code> column and specifies that its values should be unique. To create the index, we can chain the <code>unique</code> method onto the column definition:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Database\Schema\</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;">;</span></div><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Support\Facades\</span><span style="color: #FFCB8B;">Schema</span><span style="color: #BFC7D5;">;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">table</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">users</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">string</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">email</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">)</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">unique</span><span style="color: #BFC7D5;">();</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p>Alternatively, you may create the index after defining the column. To do so, you should call the <code>unique</code> method on the schema builder blueprint. This method accepts the name of the column that should receive a unique index:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">unique</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">email</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p>You may even pass an array of columns to an index method to create a compound (or composite) index:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">index</span><span style="color: #BFC7D5;">([</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">account_id</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">created_at</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">]);</span></div></code></pre>
+<p>When creating an index, Laravel will automatically generate an index name based on the table, column names, and the index type, but you may pass a second argument to the method to specify the index name yourself:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">unique</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">email</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">unique_email</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p><a name="available-index-types"></a></p>
+<h4>Available Index Types</h4>
+<p>Laravel's schema builder blueprint class provides methods for creating each type of index supported by Laravel. Each index method accepts an optional second argument to specify the name of the index. If omitted, the name will be derived from the names of the table and column(s) used for the index, as well as the index type. Each of the available index methods is described in the table below:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$table-&gt;primary('id');</code></td>
+<td>Adds a primary key.</td>
+</tr>
+<tr>
+<td><code>$table-&gt;primary(['id', 'parent_id']);</code></td>
+<td>Adds composite keys.</td>
+</tr>
+<tr>
+<td><code>$table-&gt;unique('email');</code></td>
+<td>Adds a unique index.</td>
+</tr>
+<tr>
+<td><code>$table-&gt;index('state');</code></td>
+<td>Adds an index.</td>
+</tr>
+<tr>
+<td><code>$table-&gt;fullText('body');</code></td>
+<td>Adds a full text index (MySQL/PostgreSQL).</td>
+</tr>
+<tr>
+<td><code>$table-&gt;fullText('body')-&gt;language('english');</code></td>
+<td>Adds a full text index of the specified language (PostgreSQL).</td>
+</tr>
+<tr>
+<td><code>$table-&gt;spatialIndex('location');</code></td>
+<td>Adds a spatial index (except SQLite).</td>
+</tr>
+</tbody>
+</table>
+<p><a name="index-lengths-mysql-mariadb"></a></p>
+<h4>Index Lengths &amp; MySQL / MariaDB</h4>
+<p>By default, Laravel uses the <code>utf8mb4</code> character set. If you are running a version of MySQL older than the 5.7.7 release or MariaDB older than the 10.2.2 release, you may need to manually configure the default string length generated by migrations in order for MySQL to create indexes for them. You may configure the default string length by calling the <code>Schema::defaultStringLength</code> method within the <code>boot</code> method of your <code>App\Providers\AppServiceProvider</code> class:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Support\Facades\</span><span style="color: #FFCB8B;">Schema</span><span style="color: #BFC7D5;">;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #697098;">/**</span></div><div class='line'><span style="color: #697098;"> * Bootstrap any application services.</span></div><div class='line'><span style="color: #697098;"> </span><span style="color: #697098;">*/</span></div><div class='line'><span style="color: #C792EA;">public</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">boot</span><span style="color: #D9F5DD;">()</span><span style="color: #89DDFF;">:</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">void</span></div><div class='line'><span style="color: #BFC7D5;">{</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">defaultStringLength</span><span style="color: #BFC7D5;">(</span><span style="color: #F78C6C;">191</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">}</span></div></code></pre>
+<p>Alternatively, you may enable the <code>innodb_large_prefix</code> option for your database. Refer to your database's documentation for instructions on how to properly enable this option.</p>
+<p><a name="renaming-indexes"></a></p>
+<h3>Renaming Indexes</h3>
+<p>To rename an index, you may use the <code>renameIndex</code> method provided by the schema builder blueprint. This method accepts the current index name as its first argument and the desired name as its second argument:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">renameIndex</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">from</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">to</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">)</span></div></code></pre>
+<blockquote>
+<p><strong>Warning</strong><br />
+If your application is utilizing an SQLite database, you must install the <code>doctrine/dbal</code> package via the Composer package manager before the <code>renameIndex</code> method may be used.</p>
+</blockquote>
+<p><a name="dropping-indexes"></a></p>
+<h3>Dropping Indexes</h3>
+<p>To drop an index, you must specify the index's name. By default, Laravel automatically assigns an index name based on the table name, the name of the indexed column, and the index type. Here are some examples:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$table-&gt;dropPrimary('users_id_primary');</code></td>
+<td>Drop a primary key from the &quot;users&quot; table.</td>
+</tr>
+<tr>
+<td><code>$table-&gt;dropUnique('users_email_unique');</code></td>
+<td>Drop a unique index from the &quot;users&quot; table.</td>
+</tr>
+<tr>
+<td><code>$table-&gt;dropIndex('geo_state_index');</code></td>
+<td>Drop a basic index from the &quot;geo&quot; table.</td>
+</tr>
+<tr>
+<td><code>$table-&gt;dropFullText('posts_body_fulltext');</code></td>
+<td>Drop a full text index from the &quot;posts&quot; table.</td>
+</tr>
+<tr>
+<td><code>$table-&gt;dropSpatialIndex('geo_location_spatialindex');</code></td>
+<td>Drop a spatial index from the &quot;geo&quot; table  (except SQLite).</td>
+</tr>
+</tbody>
+</table>
+<p>If you pass an array of columns into a method that drops indexes, the conventional index name will be generated based on the table name, columns, and index type:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">table</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">geo</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">dropIndex</span><span style="color: #BFC7D5;">([</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">state</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">]); </span><span style="color: #697098;">//</span><span style="color: #697098;"> Drops index &#39;geo_state_index&#39;</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p><a name="foreign-key-constraints"></a></p>
+<h3>Foreign Key Constraints</h3>
+<p>Laravel also provides support for creating foreign key constraints, which are used to force referential integrity at the database level. For example, let's define a <code>user_id</code> column on the <code>posts</code> table that references the <code>id</code> column on a <code>users</code> table:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Database\Schema\</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;">;</span></div><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Support\Facades\</span><span style="color: #FFCB8B;">Schema</span><span style="color: #BFC7D5;">;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">table</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">posts</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">unsignedBigInteger</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">user_id</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">foreign</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">user_id</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">)</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">references</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">id</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">)</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">on</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">users</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p>Since this syntax is rather verbose, Laravel provides additional, terser methods that use conventions to provide a better developer experience. When using the <code>foreignId</code> method to create your column, the example above can be rewritten like so:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">table</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">posts</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">foreignId</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">user_id</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">)</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">constrained</span><span style="color: #BFC7D5;">();</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p>The <code>foreignId</code> method creates an <code>UNSIGNED BIGINT</code> equivalent column, while the <code>constrained</code> method will use conventions to determine the table and column being referenced. If your table name does not match Laravel's conventions, you may manually provide it to the <code>constrained</code> method. In addition, the name that should be assigned to the generated index may be specified as well:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">table</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">posts</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Blueprint</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$table</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">foreignId</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">user_id</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">)</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">constrained</span><span style="color: #BFC7D5;">(</span></div><div class='line'><span style="color: #BFC7D5;">        table: </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">users</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">, indexName: </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">posts_user_id</span><span style="color: #D9F5DD;">&#39;</span></div><div class='line'><span style="color: #BFC7D5;">    );</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<p>You may also specify the desired action for the &quot;on delete&quot; and &quot;on update&quot; properties of the constraint:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">foreignId</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">user_id</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">)</span></div><div class='line'><span style="color: #BFC7D5;">      </span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">constrained</span><span style="color: #BFC7D5;">()</span></div><div class='line'><span style="color: #BFC7D5;">      </span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">onUpdate</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">cascade</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">)</span></div><div class='line'><span style="color: #BFC7D5;">      </span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">onDelete</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">cascade</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p>An alternative, expressive syntax is also provided for these actions:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$table-&gt;cascadeOnUpdate();</code></td>
+<td>Updates should cascade.</td>
+</tr>
+<tr>
+<td><code>$table-&gt;restrictOnUpdate();</code></td>
+<td>Updates should be restricted.</td>
+</tr>
+<tr>
+<td><code>$table-&gt;cascadeOnDelete();</code></td>
+<td>Deletes should cascade.</td>
+</tr>
+<tr>
+<td><code>$table-&gt;restrictOnDelete();</code></td>
+<td>Deletes should be restricted.</td>
+</tr>
+<tr>
+<td><code>$table-&gt;nullOnDelete();</code></td>
+<td>Deletes should set the foreign key value to null.</td>
+</tr>
+</tbody>
+</table>
+<p>Any additional <a href="#column-modifiers">column modifiers</a> must be called before the <code>constrained</code> method:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">foreignId</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">user_id</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">)</span></div><div class='line'><span style="color: #BFC7D5;">      </span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">nullable</span><span style="color: #BFC7D5;">()</span></div><div class='line'><span style="color: #BFC7D5;">      </span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">constrained</span><span style="color: #BFC7D5;">();</span></div></code></pre>
+<p><a name="dropping-foreign-keys"></a></p>
+<h4>Dropping Foreign Keys</h4>
+<p>To drop a foreign key, you may use the <code>dropForeign</code> method, passing the name of the foreign key constraint to be deleted as an argument. Foreign key constraints use the same naming convention as indexes. In other words, the foreign key constraint name is based on the name of the table and the columns in the constraint, followed by a &quot;_foreign&quot; suffix:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">dropForeign</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">posts_user_id_foreign</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div></code></pre>
+<p>Alternatively, you may pass an array containing the column name that holds the foreign key to the <code>dropForeign</code> method. The array will be converted to a foreign key constraint name using Laravel's constraint naming conventions:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #BEC5D4;">$table</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">dropForeign</span><span style="color: #BFC7D5;">([</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">user_id</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">]);</span></div></code></pre>
+<p><a name="toggling-foreign-key-constraints"></a></p>
+<h4>Toggling Foreign Key Constraints</h4>
+<p>You may enable or disable foreign key constraints within your migrations by using the following methods:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">enableForeignKeyConstraints</span><span style="color: #BFC7D5;">();</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">disableForeignKeyConstraints</span><span style="color: #BFC7D5;">();</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #FFCB8B;">Schema</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">withoutForeignKeyConstraints</span><span style="color: #BFC7D5;">(</span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">()</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #697098;">//</span><span style="color: #697098;"> Constraints disabled within this closure...</span></div><div class='line'><span style="color: #BFC7D5;">});</span></div></code></pre>
+<blockquote>
+<p><strong>Warning</strong><br />
+SQLite disables foreign key constraints by default. When using SQLite, make sure to <a href="/docs/10.x/database#configuration">enable foreign key support</a> in your database configuration before attempting to create them in your migrations. In addition, SQLite only supports foreign keys upon creation of the table and <a href="https://www.sqlite.org/omitted.html">not when tables are altered</a>.</p>
+</blockquote>
+<p><a name="events"></a></p>
+<h2>Events</h2>
+<p>For convenience, each migration operation will dispatch an <a href="/docs/10.x/events">event</a>. All of the following events extend the base <code>Illuminate\Database\Events\MigrationEvent</code> class:</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Illuminate\Database\Events\MigrationsStarted</code></td>
+<td>A batch of migrations is about to be executed.</td>
+</tr>
+<tr>
+<td><code>Illuminate\Database\Events\MigrationsEnded</code></td>
+<td>A batch of migrations has finished executing.</td>
+</tr>
+<tr>
+<td><code>Illuminate\Database\Events\MigrationStarted</code></td>
+<td>A single migration is about to be executed.</td>
+</tr>
+<tr>
+<td><code>Illuminate\Database\Events\MigrationEnded</code></td>
+<td>A single migration has finished executing.</td>
+</tr>
+<tr>
+<td><code>Illuminate\Database\Events\SchemaDumped</code></td>
+<td>A database schema dump has completed.</td>
+</tr>
+<tr>
+<td><code>Illuminate\Database\Events\SchemaLoaded</code></td>
+<td>An existing database schema dump has loaded.</td>
+</tr>
+</tbody>
+</table>
+
+                                <script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CKYILK3E&placement=laravelcom" id="_carbonads_js"></script>
+</div>
+                        
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  </body>
+</html>

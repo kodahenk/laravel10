@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <style>
+      pre {
+        background: black;
+        padding: 10px;
+    }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="container">
+    
+                        <section class="docs_main max-w-prose">
+                            
+                            
+                            <div id="main-content">
+    <h1>Encryption</h1>
+<ul>
+<li>
+<a href="#introduction">Introduction</a>
+</li>
+<li>
+<a href="#configuration">Configuration</a>
+</li>
+<li>
+<a href="#using-the-encrypter">Using The Encrypter</a>
+</li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2>Introduction</h2>
+<p>Laravel's encryption services provide a simple, convenient interface for encrypting and decrypting text via OpenSSL using AES-256 and AES-128 encryption. All of Laravel's encrypted values are signed using a message authentication code (MAC) so that their underlying value can not be modified or tampered with once encrypted.</p>
+<p><a name="configuration"></a></p>
+<h2>Configuration</h2>
+<p>Before using Laravel's encrypter, you must set the <code>key</code> configuration option in your <code>config/app.php</code> configuration file. This configuration value is driven by the <code>APP_KEY</code> environment variable. You should use the <code>php artisan key:generate</code> command to generate this variable's value since the <code>key:generate</code> command will use PHP's secure random bytes generator to build a cryptographically secure key for your application. Typically, the value of the <code>APP_KEY</code> environment variable will be generated for you during <a href="/docs/10.x/installation">Laravel's installation</a>.</p>
+<p><a name="using-the-encrypter"></a></p>
+<h2>Using The Encrypter</h2>
+<p><a name="encrypting-a-value"></a></p>
+<h4>Encrypting A Value</h4>
+<p>You may encrypt a value using the <code>encryptString</code> method provided by the <code>Crypt</code> facade. All encrypted values are encrypted using OpenSSL and the AES-256-CBC cipher. Furthermore, all encrypted values are signed with a message authentication code (MAC). The integrated message authentication code will prevent the decryption of any values that have been tampered with by malicious users:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #D3423E;">&lt;?php</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #C792EA;">namespace</span><span style="color: #BFC7D5;"> App\Http\Controllers;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Http\</span><span style="color: #FFCB8B;">RedirectResponse</span><span style="color: #BFC7D5;">;</span></div><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Http\</span><span style="color: #FFCB8B;">Request</span><span style="color: #BFC7D5;">;</span></div><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Support\Facades\</span><span style="color: #FFCB8B;">Crypt</span><span style="color: #BFC7D5;">;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #C792EA;">class</span><span style="color: #BFC7D5;"> </span><span style="color: #FFCB6B;">DigitalOceanTokenController</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">extends</span><span style="color: #BFC7D5;"> </span><span style="color: #A9C77D;">Controller</span></div><div class='line'><span style="color: #BFC7D5;">{</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #697098;">/**</span></div><div class='line'><span style="color: #697098;">     * Store a DigitalOcean API token for the user.</span></div><div class='line'><span style="color: #697098;">     </span><span style="color: #697098;">*/</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #C792EA;">public</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">function</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">store</span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB8B;">Request</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$request</span><span style="color: #D9F5DD;">)</span><span style="color: #89DDFF;">:</span><span style="color: #BFC7D5;"> </span><span style="color: #FFCB8B;">RedirectResponse</span></div><div class='line'><span style="color: #BFC7D5;">    {</span></div><div class='line'><span style="color: #BFC7D5;">        </span><span style="color: #BEC5D4;">$request</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">user</span><span style="color: #BFC7D5;">()</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">fill</span><span style="color: #BFC7D5;">([</span></div><div class='line'><span style="color: #BFC7D5;">            </span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">token</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;"> </span><span style="color: #89DDFF;">=&gt;</span><span style="color: #BFC7D5;"> </span><span style="color: #FFCB8B;">Crypt</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">encryptString</span><span style="color: #BFC7D5;">(</span><span style="color: #BEC5D4;">$request</span><span style="color: #89DDFF;">-&gt;token</span><span style="color: #BFC7D5;">),</span></div><div class='line'><span style="color: #BFC7D5;">        ])</span><span style="color: #89DDFF;">-&gt;</span><span style="color: #82AAFF;">save</span><span style="color: #BFC7D5;">();</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #BFC7D5;">        </span><span style="color: #C792EA;">return</span><span style="color: #BFC7D5;"> </span><span style="color: #82AAFF;">redirect</span><span style="color: #BFC7D5;">(</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #C3E88D;">/secrets</span><span style="color: #D9F5DD;">&#39;</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">    }</span></div><div class='line'><span style="color: #BFC7D5;">}</span></div></code></pre>
+<p><a name="decrypting-a-value"></a></p>
+<h4>Decrypting A Value</h4>
+<p>You may decrypt values using the <code>decryptString</code> method provided by the <code>Crypt</code> facade. If the value can not be properly decrypted, such as when the message authentication code is invalid, an <code>Illuminate\Contracts\Encryption\DecryptException</code> will be thrown:</p>
+<pre><code data-theme="olaolu-palenight" data-lang="php" class='torchlight' style='background-color: #292D3E; --theme-selection-background: #7580B850;'><!-- Syntax highlighted by torchlight.dev --><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Contracts\Encryption\</span><span style="color: #FFCB8B;">DecryptException</span><span style="color: #BFC7D5;">;</span></div><div class='line'><span style="color: #C792EA;">use</span><span style="color: #BFC7D5;"> Illuminate\Support\Facades\</span><span style="color: #FFCB8B;">Crypt</span><span style="color: #BFC7D5;">;</span></div><div class='line'>&nbsp;</div><div class='line'><span style="color: #C792EA;">try</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #BEC5D4;">$decrypted</span><span style="color: #BFC7D5;"> </span><span style="color: #C792EA;">=</span><span style="color: #BFC7D5;"> </span><span style="color: #FFCB8B;">Crypt</span><span style="color: #89DDFF;">::</span><span style="color: #82AAFF;">decryptString</span><span style="color: #BFC7D5;">(</span><span style="color: #BEC5D4;">$encryptedValue</span><span style="color: #BFC7D5;">);</span></div><div class='line'><span style="color: #BFC7D5;">} </span><span style="color: #C792EA;">catch</span><span style="color: #BFC7D5;"> </span><span style="color: #D9F5DD;">(</span><span style="color: #FFCB6B;">DecryptException</span><span style="color: #BFC7D5;"> </span><span style="color: #BEC5D4;">$e</span><span style="color: #D9F5DD;">)</span><span style="color: #BFC7D5;"> {</span></div><div class='line'><span style="color: #BFC7D5;">    </span><span style="color: #697098;">//</span><span style="color: #697098;"> ...</span></div><div class='line'><span style="color: #BFC7D5;">}</span></div></code></pre>
+
+                                <script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CKYILK3E&placement=laravelcom" id="_carbonads_js"></script>
+</div>
+                        
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  </body>
+</html>
